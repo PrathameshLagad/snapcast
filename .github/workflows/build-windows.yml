@@ -1,0 +1,31 @@
+name: Build Snapserver for Windows
+
+on:
+  workflow_dispatch:  # Let's you run this manually
+
+jobs:
+  build:
+    runs-on: windows-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Install Tools
+        run: |
+          choco install cmake -y
+          choco install mingw -y
+
+      - name: Build Snapserver
+        shell: cmd
+        run: |
+          set PATH=C:\ProgramData\chocolatey\lib\mingw\tools\install\mingw64\bin;%PATH%
+          mkdir build
+          cd build
+          cmake -G "MinGW Makefiles" ..
+          cmake --build . --target snapserver -j 2
+
+      - name: Upload Snapserver
+        uses: actions/upload-artifact@v3
+        with:
+          name: snapserver.exe
+          path: build/snapserver.exe
